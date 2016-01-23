@@ -16,7 +16,7 @@ RUN sed -i "s/#\$ModLoad imudp/\$ModLoad imudp/" /etc/rsyslog.conf && \
 
 RUN sed -i "s/authpriv.none/authpriv.none,local6.none,local7.none/" /etc/rsyslog.d/50-default.conf
 
-RUN echo '$template api,"%msg%\n"' >> /etc/rsyslog.d/api.conf && \
+RUN echo '$template api,"%msg%\\n"' >> /etc/rsyslog.d/api.conf && \
   echo "if \$syslogfacility-text == 'local6' and \$programname == 'api' then /var/log/api.log;api" >> /etc/rsyslog.d/api.conf && \
   echo "if \$syslogfacility-text == 'local6' and \$programname == 'api' then stop" >> /etc/rsyslog.d/api.conf
 
