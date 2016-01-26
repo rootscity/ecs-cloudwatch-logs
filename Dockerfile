@@ -16,17 +16,21 @@ RUN sed -i "s/#\$ModLoad imudp/\$ModLoad imudp/" /etc/rsyslog.conf && \
 
 RUN sed -i "s/authpriv.none/authpriv.none,local6.none,local7.none/" /etc/rsyslog.d/50-default.conf
 
-RUN echo '$template api,"%msg%\\n"' >> /etc/rsyslog.d/trees.conf && \
-  echo "if \$syslogfacility-text == 'local6' and \$programname == 'api' then /var/log/api.log;api" >> /etc/rsyslog.d/trees.conf && \
-  echo "if \$syslogfacility-text == 'local6' and \$programname == 'api' then stop" >> /etc/rsyslog.d/trees.conf && \
-  echo "if \$syslogfacility-text == 'local6' and \$programname == 'letsencrypt' then /var/log/letsencrypt.log" >> /etc/rsyslog.d/trees.conf && \
-  echo "if \$syslogfacility-text == 'local6' and \$programname == 'letsencrypt' then stop" >> /etc/rsyslog.d/trees.conf
+RUN echo '$template api,"%msg%\\n"' >> /etc/rsyslog.d/site.conf && \
+  echo "if \$syslogfacility-text == 'local6' and \$programname == 'api' then /var/log/api.log;api" >> /etc/rsyslog.d/site.conf && \
+  echo "if \$syslogfacility-text == 'local6' and \$programname == 'api' then stop" >> /etc/rsyslog.d/site.conf && \
+  echo "if \$syslogfacility-text == 'local6' and \$programname == 'letsencrypt' then /var/log/letsencrypt.log" >> /etc/rsyslog.d/site.conf && \
+  echo "if \$syslogfacility-text == 'local6' and \$programname == 'letsencrypt' then stop" >> /etc/rsyslog.d/site.conf && \
+  echo "if \$syslogfacility-text == 'local6' and \$programname == 'nginx' then /var/log/nginx-access.log" >> /etc/rsyslog.d/site.conf && \
+  echo "if \$syslogfacility-text == 'local6' and \$programname == 'nginx' then stop" >> /etc/rsyslog.d/site.conf && \
+  echo "if \$syslogfacility-text == 'local7' and \$programname == 'nginx' then /var/log/nginx-error.log" >> /etc/rsyslog.d/site.conf && \
+  echo "if \$syslogfacility-text == 'local7' and \$programname == 'nginx' then stop" >> /etc/rsyslog.d/site.conf
 
 COPY awslogs.conf awslogs.conf
-RUN python ./awslogs-agent-setup.py -n -r us-east-1 -c /awslogs.conf
+COPY run.sh run.sh
 
 RUN pip install supervisor
 COPY supervisord.conf /usr/local/etc/supervisord.conf
 
 EXPOSE 514/tcp 514/udp
-CMD ["/usr/local/bin/supervisord"]
+CMD ["/run.sh"]
